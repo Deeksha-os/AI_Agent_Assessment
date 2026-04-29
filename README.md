@@ -20,7 +20,7 @@ The system is built with five primary modules as specified in the assignment gui
 5. Display: The final answer, along with the underlying code and sources, is displayed in the UI.  
 
  ## Evaluation Criteria 
- FulfillmentWorking System: The agent handles input and generates responses without errors. 
+ Working System: The agent handles input and generates responses without errors. 
  Correct Tool Use: The Planner correctly routes queries between search and code.  
  Code Execution: Generated code runs successfully and produces correct results. 
  Clean UI: Implemented with Streamlit using success boxes and expandable sections. 
