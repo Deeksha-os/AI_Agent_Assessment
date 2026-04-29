@@ -36,3 +36,5 @@ The system is built with five primary modules as specified in the assignment gui
  1. Add your TAVILY_API_KEY and GOOGLE_API_KEY to a .env file.  
  2. Install requirements: pip install langchain langgraph streamlit google-generativeai.  
  3. Run the application: streamlit run app.py
+
+Link: https://aiagentassessment.streamlit.app/
