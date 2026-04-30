@@ -9,10 +9,10 @@ from langchain_community.tools.tavily_search import TavilySearchResults
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, List
 
-# --- STEP 1: LOAD ENVIRONMENT --- [cite: 58, 61]
+# --- STEP 1: LOAD ENVIRONMENT ---
 load_dotenv() 
 
-# --- STEP 2: DEFINE THE STATE --- [cite: 76]
+# --- STEP 2: DEFINE THE STATE --- 
 class AgentState(TypedDict): 
     question: str
     decision: str
@@ -22,15 +22,15 @@ class AgentState(TypedDict):
     final_answer: str
     sources: List[str]
 
-# --- STEP 3: INITIALIZE MODELS & TOOLS --- [cite: 60, 70]
+# --- STEP 3: INITIALIZE MODELS & TOOLS --- 
 # Use the most stable model string for your environment
 llm = ChatGoogleGenerativeAI(model="gemini-3.1-flash-lite-preview") 
 search_tool = TavilySearchResults(k=3) 
 
-# --- STEP 4: DEFINE THE NODES (THE LOGIC) --- [cite: 76]
+# --- STEP 4: DEFINE THE NODES (THE LOGIC) --- 
 
 def planner(state: AgentState):
-    """Decides between 'search' or 'code' [cite: 23, 24]"""
+    """Decides between 'search' or 'code'"""
     prompt = f"Decide if this needs 'web_search' or 'generate_code': {state['question']}. Reply with only one word."
     response = llm.invoke(prompt)
     
@@ -42,14 +42,14 @@ def planner(state: AgentState):
     return {"decision": content.strip().lower()}
 
 def web_search(state: AgentState): 
-    """Fetches real-time info from the web[cite: 26, 27]."""
+    """Fetches real-time info from the web."""
     results = search_tool.invoke(state["question"])
     content = "\n".join([r["content"] for r in results])
     urls = [r["url"] for r in results]
     return {"search_results": content, "sources": urls}
 
 def code_writer(state: AgentState):
-    """Generates clean Python code[cite: 29, 30]."""
+    """Generates clean Python code."""
     prompt = f"Write Python code to solve: {state['question']}. Output ONLY the code."
     response = llm.invoke(prompt)
     
@@ -61,9 +61,9 @@ def code_writer(state: AgentState):
     return {"generated_code": code}
 
 def code_executor(state: AgentState): 
-    """Runs the code safely via subprocess[cite: 33, 34]."""
+    """Runs the code safely via subprocess."""
     try:
-        # Running via subprocess as required by Step 5 [cite: 73]
+        # Running via subprocess as required by Step 5 
         result = subprocess.run(
             ["python", "-c", state["generated_code"]],
             capture_output=True, text=True, timeout=10
@@ -74,7 +74,7 @@ def code_executor(state: AgentState):
         return {"execution_output": str(e)} 
 
 def response_generator(state: AgentState):
-    """Forms the final clean answer[cite: 37, 38]."""
+    """Forms the final clean answer."""
     context = state.get("search_results") or state.get("execution_output")
     prompt = f"Based on this result: {context}, answer the user's question: {state['question']}"
     response = llm.invoke(prompt)
@@ -85,7 +85,7 @@ def response_generator(state: AgentState):
     
     return {"final_answer": final_text}
 
-# --- STEP 5: BUILD THE LANGGRAPH --- [cite: 42, 75]
+# --- STEP 5: BUILD THE LANGGRAPH --- 
 
 workflow = StateGraph(AgentState)
 
@@ -113,7 +113,7 @@ workflow.add_edge("response_generator", END)
 
 app = workflow.compile() 
 
-# --- STEP 6: STREAMLIT UI --- [cite: 48, 62]
+# --- STEP 6: STREAMLIT UI --- 
 
 st.set_page_config(page_title="Agentic AI", layout="wide")
 st.title("🤖 Agentic AI System")
@@ -127,18 +127,18 @@ if st.button("Run Agent") and query:
     with st.spinner("Agent is thinking..."):
         result = app.invoke({"question": query})
         
-        # 1. Display the Final Answer [cite: 81]
+        # 1. Display the Final Answer 
         st.subheader("Final Answer")
         st.success(result["final_answer"])
         
-        # 2. Display Code and Output if the agent wrote code [cite: 82]
+        # 2. Display Code and Output if the agent wrote code 
         if result.get("generated_code"):
             with st.expander("💻 View Python Logic"):
                 st.code(result["generated_code"], language="python")
                 st.write("**Execution Result:**")
                 st.info(result["execution_output"])
         
-        # 3. Display Sources if search was used [cite: 83]
+        # 3. Display Sources if search was used 
         if result.get("sources"):
             with st.expander("🌐 Research Sources"):
                 for url in result["sources"]:
