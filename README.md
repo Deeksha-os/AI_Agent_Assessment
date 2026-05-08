@@ -37,4 +37,4 @@ The system is built with five primary modules as specified in the assignment gui
  2. Install requirements: pip install langchain langgraph streamlit google-generativeai.  
  3. Run the application: streamlit run app.py
 
-Link: https://aiagentassessment.streamlit.app/
+
